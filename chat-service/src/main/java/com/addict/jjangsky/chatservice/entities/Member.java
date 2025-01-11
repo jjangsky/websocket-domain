@@ -1,11 +1,18 @@
 package com.addict.jjangsky.chatservice.entities;
 
-import com.nimbusds.openid.connect.sdk.claims.Gender;
+import com.addict.jjangsky.chatservice.enums.Gender;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
 import java.time.LocalDate;
 
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +28,5 @@ public class Member {
     String phoneNumber;
     LocalDate birthDay;
     String role;
+
 }
