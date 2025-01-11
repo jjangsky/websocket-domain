@@ -4,12 +4,14 @@ import com.addict.jjangsky.chatservice.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
 import java.time.LocalDate;
 
 @Builder
+@Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor

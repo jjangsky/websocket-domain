@@ -3,6 +3,7 @@ package com.addict.jjangsky.chatservice.service;
 import com.addict.jjangsky.chatservice.entities.Member;
 import com.addict.jjangsky.chatservice.enums.Gender;
 import com.addict.jjangsky.chatservice.repositories.MemberRepository;
+import com.addict.jjangsky.chatservice.vos.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -31,7 +32,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 // 값이 없을 경우 회원 정보를 생성
                 .orElseGet(() ->  registerMember(attributeMap));
 
-        return oAuth2User;
+        return new CustomOAuth2User(member, oAuth2User.getAttributes());
     }
 
     private Member registerMember(Map<String, Object> attributeMap) {
