@@ -4,6 +4,7 @@ const stompClient = new StompJs.Client({
 
 stompClient.onConnect = (frame) => {
   setConnected(true);
+  showChatrooms();
   console.log('Connected: ' + frame);
 };
 
@@ -51,7 +52,7 @@ function createChatroom() {
   $.ajax({
     type: 'POST',
     dataType: 'json',
-    url: '/chats?title=' + $("chatroom-title").val(),
+    url: '/chats?title=' + $("#chatroom-title").val(),
     success: function (data){
       console.log('data', data);
       showChatrooms();
@@ -81,10 +82,10 @@ function showChatrooms(){
 }
 
 function renderChatrooms(chatrooms){
-  $("chatroom-list").html("");
+  $("#chatroom-list").html("");
   for(let i=0 ; i < chatrooms.length; i++){
     $("#chatroom-list").append(
-        "<tr onclick='joinChatroom(" + chatroom[i].id + ")'><td>"
+        "<tr onclick='joinChatroom(" + chatrooms[i].id + ")'><td>"
         + chatrooms[i].id + "</td><td>" + chatrooms[i].title + "</td><td>"
         + chatrooms[i].memberCount + "</td><td>" + chatrooms[i].createdAt
         + "</td></tr>"
@@ -96,12 +97,13 @@ let subscription;
 
 function enterChatroom(chatroomId, newMember){
   $("#chatroom-id").val(chatroomId);
+  $("#message").html("");
   $("#conversation").show();
-  $("send").prop("disabled", false);
+  $("#send").prop("disabled", false);
   $("#leave").prop("disabled", false);
 
   if(subscription != undefined){
-    subscription.unselectable();
+    subscription.unsubscribe();
   }
 
   subscription = stompClient.subscribe('/sub/chats/' + chatroomId, (chatMessage) => {
@@ -132,7 +134,7 @@ function joinChatroom(chatroomId){
 }
 
 function leaveChatroom() {
-  let chatroomId = $("chatroom-id").val();
+  let chatroomId = $("#chatroom-id").val();
   $.ajax({
     type: 'DELETE',
     dataType: 'json',
@@ -152,9 +154,9 @@ function leaveChatroom() {
 
 function exitChatroom(chatroomId){
   $("#chatroom-id").val("");
-  $("conversation").hide();
-  $("send").prop("disabled", true);
-  $("leave").prop("disabled", true);
+  $("#conversation").hide();
+  $("#send").prop("disabled", true);
+  $("#leave").prop("disabled", true);
 }
 
 

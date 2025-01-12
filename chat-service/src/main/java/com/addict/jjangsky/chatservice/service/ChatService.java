@@ -8,6 +8,7 @@ import com.addict.jjangsky.chatservice.repositories.MemberChatroomMappingReposit
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,7 @@ public class ChatService {
     /**
      * 채팅방을 생성하는 서비스
      */
+    @Transactional
     public Chatroom createChatroom(Member member, String title){
         // 채팅방 생성
         Chatroom chatroom = Chatroom.builder()
@@ -34,10 +36,7 @@ public class ChatService {
         chatroom = chatroomRepository.save(chatroom);
 
         // 만든 사람이 채팅방 참여
-        MemberChatroomMapping memberChatroomMapping = MemberChatroomMapping.builder()
-                .member(member)
-                .chatroom(chatroom)
-                .build();
+        MemberChatroomMapping memberChatroomMapping = chatroom.addMember(member);
 
         memberChatroomMapping = memberChatroomMappingRepository.save(memberChatroomMapping);
 
@@ -47,6 +46,7 @@ public class ChatService {
     /**
      * 채팅방 참여 서비스
      */
+    @Transactional
     public Boolean joinChatroom(Member member, Long chatroomId){
         // 먼저 채팅방에 존재하는지
         if(memberChatroomMappingRepository.existsByMemberIdAndChatroomId(member.getId(), chatroomId)){
@@ -69,6 +69,7 @@ public class ChatService {
     /**
      * 채팅방 나가는 서비스
      */
+    @Transactional
     public Boolean leaveChatroom(Member member, Long chatroomId){
         if(memberChatroomMappingRepository.existsByMemberIdAndChatroomId(member.getId(), chatroomId)){
             log.info("참여하지 않은 방입니다.");

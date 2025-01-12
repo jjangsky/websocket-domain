@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,4 +28,23 @@ public class Chatroom {
     Set<MemberChatroomMapping> memberChatroomMappingSet;
 
     LocalDateTime createdAt;
+
+    /**
+     * MemberChatroomMapping의 값으 null인 경우를 고려하여(채팅방에 사람이 없음)
+     * 메소드를 만들어서 처리함(null값 방지용)
+     */
+    public MemberChatroomMapping addMember(Member member){
+        if(this.getMemberChatroomMappingSet() == null){
+            this.memberChatroomMappingSet = new HashSet<>();
+        }
+
+        MemberChatroomMapping memberChatroomMapping = MemberChatroomMapping.builder()
+                .member(member)
+                .chatroom(this)
+                .build();
+
+        this.memberChatroomMappingSet.add(memberChatroomMapping);
+
+        return memberChatroomMapping;
+    }
 }
