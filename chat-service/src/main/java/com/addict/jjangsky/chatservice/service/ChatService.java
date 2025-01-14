@@ -3,8 +3,10 @@ package com.addict.jjangsky.chatservice.service;
 import com.addict.jjangsky.chatservice.entities.Chatroom;
 import com.addict.jjangsky.chatservice.entities.Member;
 import com.addict.jjangsky.chatservice.entities.MemberChatroomMapping;
+import com.addict.jjangsky.chatservice.entities.Message;
 import com.addict.jjangsky.chatservice.repositories.ChatroomRepository;
 import com.addict.jjangsky.chatservice.repositories.MemberChatroomMappingRepository;
+import com.addict.jjangsky.chatservice.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class ChatService {
 
     private final ChatroomRepository chatroomRepository;
     private final MemberChatroomMappingRepository memberChatroomMappingRepository;
+    private final MessageRepository messageRepository;
 
 
     /**
@@ -91,6 +94,22 @@ public class ChatService {
         return memberChatroomMappingList.stream()
                 .map(MemberChatroomMapping::getChatroom)
                 .toList();
+    }
+
+    public Message saveMessage(Member member, Long chatroomId, String text){
+        Chatroom chatroom = chatroomRepository.findById(chatroomId).get();
+
+        Message message = Message.builder()
+                .text(text)
+                .member(member)
+                .chatroom(chatroom)
+                .build();
+
+        return messageRepository.save(message);
+    }
+
+    public List<Message> getMessageList(Long chatroomId){
+        return messageRepository.findAllByChatroomId(chatroomId);
     }
 
 }
