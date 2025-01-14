@@ -34,20 +34,17 @@ function disconnect() {
 }
 
 function sendMessage() {
+  console.log("실행")
   let chatroomId = $("#chatroom-id").val()
+  console.log(chatroomId);
   stompClient.publish({
-    destination: "/pub/chats" + chatroomId,
+    destination: "/pub/chats/" + chatroomId,
     body: JSON.stringify(
         {'message': $("#message").val()})
   });
   $("#message").val("")
 }
 
-function showMessage(chatMessage) {
-  $("#messages").append(
-      "<tr><td>" + chatMessage.sender + " : " + chatMessage.message
-      + "</td></tr>");
-}
 function createChatroom() {
   $.ajax({
     type: 'POST',
@@ -98,6 +95,7 @@ let subscription;
 function enterChatroom(chatroomId, newMember){
   $("#chatroom-id").val(chatroomId);
   $("#message").html("");
+  showMessages(chatroomId);
   $("#conversation").show();
   $("#send").prop("disabled", false);
   $("#leave").prop("disabled", false);
@@ -116,6 +114,32 @@ function enterChatroom(chatroomId, newMember){
           {'message': "님이 방에 입장하셨습니다."})
     })
   }
+}
+
+function showMessages(chatroomId){
+  $.ajax({
+    type: 'GET',
+    dataType: 'json',
+    url: '/chats/' + chatroomId + '/messages',
+    success: function (data){
+      console.log('data', data);
+      for(let i = 0; data.length; i++){
+        showMessage(data[i]);
+      }
+
+
+    },
+    error: function(request, status, error){
+      console.log('request', request);
+      console.log('error', error)
+    }
+  })
+}
+
+function showMessage(chatMessage) {
+  $("#messages").append(
+      "<tr><td>" + chatMessage.sender + " : " + chatMessage.message
+      + "</td></tr>");
 }
 
 function joinChatroom(chatroomId){

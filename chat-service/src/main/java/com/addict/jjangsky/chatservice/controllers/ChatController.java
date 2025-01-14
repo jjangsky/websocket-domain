@@ -1,7 +1,9 @@
 package com.addict.jjangsky.chatservice.controllers;
 
+import com.addict.jjangsky.chatservice.dtos.ChatMessage;
 import com.addict.jjangsky.chatservice.dtos.ChatroomDto;
 import com.addict.jjangsky.chatservice.entities.Chatroom;
+import com.addict.jjangsky.chatservice.entities.Message;
 import com.addict.jjangsky.chatservice.service.ChatService;
 import com.addict.jjangsky.chatservice.vos.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
@@ -47,4 +49,15 @@ public class ChatController {
                 .map(ChatroomDto::from)
                 .toList();
     }
+
+    @GetMapping("/{chatroomId}/messages")
+    public List<ChatMessage> getMessageList(@PathVariable Long chatroomId) {
+
+        List<Message> messageList = chatService.getMessageList(chatroomId);
+
+        return messageList.stream()
+                .map(message -> new ChatMessage(message.getMember().getNickName(), message.getText()))
+                .toList();
+    }
+
 }
