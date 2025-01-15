@@ -146,7 +146,7 @@ function showMessages(chatroomId){
     url: '/chats/' + chatroomId + '/messages',
     success: function (data){
       console.log('data', data);
-      for(let i = 0; data.length; i++){
+      for(let i = 0; i < data.length; i++){
         showMessage(data[i]);
       }
 

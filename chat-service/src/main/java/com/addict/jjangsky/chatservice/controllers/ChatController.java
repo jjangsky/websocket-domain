@@ -32,7 +32,7 @@ public class ChatController {
     @PostMapping("/{chatroomId}")
     public Boolean joinChatroom(@AuthenticationPrincipal CustomOAuth2User user,
                                 @PathVariable Long chatroomId,
-                                @RequestParam Long currentChatroomId){
+                                @RequestParam(required = false) Long currentChatroomId){
         return chatService.joinChatroom(user.getMember(), chatroomId, currentChatroomId);
     }
 
