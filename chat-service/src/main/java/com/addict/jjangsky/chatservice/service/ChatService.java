@@ -50,13 +50,18 @@ public class ChatService {
      * 채팅방 참여 서비스
      */
     @Transactional
-    public Boolean joinChatroom(Member member, Long chatroomId){
+    public Boolean joinChatroom(Member member, Long newChatroomId, Long currentChatroomId){
+        if(currentChatroomId != null){
+            // 방을 옮겨가는 과정인 경우
+            updateLastCheckedAt(member, currentChatroomId);
+        }
+
         // 먼저 채팅방에 존재하는지
-        if(memberChatroomMappingRepository.existsByMemberIdAndChatroomId(member.getId(), chatroomId)){
+        if(memberChatroomMappingRepository.existsByMemberIdAndChatroomId(member.getId(), newChatroomId)){
             log.info("이미 참여한 채팅방 입니다.");
             return false;
         }
-        Chatroom chatroom = chatroomRepository.findById(chatroomId).get();
+        Chatroom chatroom = chatroomRepository.findById(newChatroomId).get();
 
 
         MemberChatroomMapping memberChatroomMapping = MemberChatroomMapping.builder()
@@ -67,6 +72,14 @@ public class ChatService {
         memberChatroomMapping = memberChatroomMappingRepository.save(memberChatroomMapping);
 
         return true;
+    }
+
+    private void updateLastCheckedAt(Member member, Long currentChatroomId) {
+        MemberChatroomMapping memberChatroomMapping
+                = memberChatroomMappingRepository.findAllByMemberIdAndChatroomId(member.getId(), currentChatroomId);
+        memberChatroomMapping.updateLastCheckedAt();
+
+        memberChatroomMappingRepository.save(memberChatroomMapping);
     }
 
     /**
@@ -91,8 +104,17 @@ public class ChatService {
         List<MemberChatroomMapping> memberChatroomMappingList
                 = memberChatroomMappingRepository.findAllByMemberId(member.getId());
 
+        /**
+         * 채팅방 조회 시 신규 메세지 알림 여부를 적용해서 조회 처리
+         * -> 메시지가 생성 된 것이 어떤 특정 일자(마지막으로 메세지 확인)를 넘었을 때 `hasNewMessage` 값 처리
+         */
         return memberChatroomMappingList.stream()
-                .map(MemberChatroomMapping::getChatroom)
+                .map(memberChatroomMapping -> {
+                    Chatroom chatroom = memberChatroomMapping.getChatroom();
+                    chatroom.setHasNewMessage
+                            (messageRepository.existsByChatroomIdAndCreatedAtAfter(chatroom.getId(), memberChatroomMapping.getLastCheckedAt()));
+                    return chatroom;
+                })
                 .toList();
     }
 
@@ -103,6 +125,7 @@ public class ChatService {
                 .text(text)
                 .member(member)
                 .chatroom(chatroom)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return messageRepository.save(message);

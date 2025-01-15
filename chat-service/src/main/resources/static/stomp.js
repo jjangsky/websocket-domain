@@ -5,8 +5,21 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
   setConnected(true);
   showChatrooms();
+
+  stompClient.subscribe('/sub/chats/news', // stomp에서 메세지가 올 경우 보여짐(알림)
+      (chatMessage) => {
+    toggleNewMessageIcon(JSON.parse(chatMessage.body), true);
+  });
   console.log('Connected: ' + frame);
 };
+
+function toggleNewMessageIcon(chatroomId, toggle){
+  if (toggle){
+    $("#new_" + chatroomId).show();
+  }else{
+    $("new_" + chatroomId).hide();
+  }
+}
 
 stompClient.onWebSocketError = (error) => {
   console.error('Error with websocket', error);
@@ -83,11 +96,20 @@ function renderChatrooms(chatrooms){
   for(let i=0 ; i < chatrooms.length; i++){
     $("#chatroom-list").append(
         "<tr onclick='joinChatroom(" + chatrooms[i].id + ")'><td>"
-        + chatrooms[i].id + "</td><td>" + chatrooms[i].title + "</td><td>"
+        + chatrooms[i].id + "</td><td>" + chatrooms[i].title
+        + "<img src='new.png' id='new_" + chatrooms[i].id + "' style='display: "
+        + getDisplayValue(chatrooms[i].hasNewMessage) + "'/></td><td>"
         + chatrooms[i].memberCount + "</td><td>" + chatrooms[i].createdAt
         + "</td></tr>"
     );
   }
+}
+
+function getDisplayValue(hasNewMessage) {
+  if(hasNewMessage){
+    return "inline";
+  }
+  return "none";
 }
 
 let subscription;
@@ -99,6 +121,7 @@ function enterChatroom(chatroomId, newMember){
   $("#conversation").show();
   $("#send").prop("disabled", false);
   $("#leave").prop("disabled", false);
+  toggleNewMessageIcon(chatroomId, false); // 입장할 때 알림 제거
 
   if(subscription != undefined){
     subscription.unsubscribe();
@@ -143,10 +166,13 @@ function showMessage(chatMessage) {
 }
 
 function joinChatroom(chatroomId){
+  let currentChatroomId = $("#chatroom-id").val(); // 기존의 참여중인 방
+
+
   $.ajax({
     type: 'POST',
     dataType: 'json',
-    url: '/chats/' + chatroomId,
+    url: '/chats/' + chatroomId + getRequestParam(currentChatroomId),
     success: function (data){
       enterChatroom(chatroomId, data);
     },
@@ -155,6 +181,13 @@ function joinChatroom(chatroomId){
       console.log('error', error)
     }
   })
+}
+
+function getRequestParam(currentChatroomId){
+  if (currentChatroomId == ""){
+    return "";
+  }
+  return "?currentChatroomId=" + currentChatroomId;
 }
 
 function leaveChatroom() {
