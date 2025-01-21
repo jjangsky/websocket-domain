@@ -1,81 +1,201 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hello WebSocket</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <title>Chat-Service</title>
+  <meta charset="UTF-8">
   <link href="/main.css" rel="stylesheet">
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="/stomp.js"></script>
 </head>
 <body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-  enabled. Please enable
-  Javascript and reload this page!</h2></noscript>
-<div id="main-content" class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <form class="form-inline">
-        <div class="form-group">
-          <label for="connect">WebSocket connection:</label>
-          <button id="connect" class="btn btn-default" type="button">Connect</button>
-          <button id="disconnect" class="btn btn-default" disabled="disabled" type="button">Disconnect
-          </button>
-        </div>
-      </form>
+<div class="container">
+  <div class="chat-list">
+    <div class="chat-list-header">
+      <h2>CHATS_</h2>
+      <button class="create-chat-btn">+ NEW</button>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <form class="form-inline">
-        <div class="form-group">
-          <label for="create">Chatroom</label>
-          <input type="text" id="chatroom-id" class="form-control" disabled="disabled" placeholder="chatroom id">
-          <input type="text" id="chatroom-title" class="form-control" placeholder="chatroom title">
-        </div>
-        <button id="create" class="btn btn-default" type="button">Create</button>
-        <button id="leave" class="btn btn-default" type="button">Leave</button>
-      </form>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <table id="chatrooms" class="table table-striped">
-        <thead>
-        <tr>
-          <th>Chatrooms</th>
-        </tr>
-        </thead>
-        <tbody id="chatroom-list">
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <form class="form-inline">
-      <div class="form-group">
-        <label for="send">Message</label>
-        <input type="text" id="message" class="form-control" placeholder="message to send">
+    <div class="chat-list-content">
+      <div class="chat-item active">
+        <h4>SYSTEM_01</h4>
+        <p>접속을 환영합니다.</p>
+        <button class="leave-chat-btn">×</button>
       </div>
-      <button id="send" class="btn btn-default" type="button">Send</button>
-    </form>
+      <div class="chat-item">
+        <h4>AGENT_457</h4>
+        <p>미션 브리핑 완료.</p>
+        <button class="leave-chat-btn">×</button>
+      </div>
+      <div class="chat-item">
+        <h4>NETWORK_NODE</h4>
+        <p>연결 상태 양호.</p>
+        <button class="leave-chat-btn">×</button>
+      </div>
+    </div>
+  </div>
+  <div class="chat-window">
+    <div class="chat-header">
+      <h3>SYSTEM_01</h3>
+    </div>
+    <div class="messages">
+      <div class="message received">
+        <div class="message-content">접속을 환영합니다, USER.</div>
+      </div>
+      <div class="message sent">
+        <div class="message-content">시스템 접속 확인.</div>
+      </div>
+    </div>
+    <div class="chat-input">
+      <form id="message-form">
+        <input type="text" placeholder="MESSAGE_" id="message-input">
+        <button type="submit">SEND_</button>
+      </form>
+    </div>
+  </div>
+  <!-- 참여자 목록 추가 -->
+  <div class="participants-list">
+    <div class="participants-header">
+      <h3>Participants</h3>
+      <div class="participants-count">12 members</div>
+    </div>
+    <div class="participants-content">
+      <div class="participant-item">
+        <div class="participant-avatar">SP</div>
+        <div class="participant-info">
+          <div class="participant-name">Sarah Parker</div>
+          <div class="participant-status online">Online</div>
+        </div>
+        <span class="participant-role admin">Admin</span>
+      </div>
+      <div class="participant-item">
+        <div class="participant-avatar">TW</div>
+        <div class="participant-info">
+          <div class="participant-name">Tom Wilson</div>
+          <div class="participant-status online">Online</div>
+        </div>
+        <span class="participant-role moderator">Moderator</span>
+      </div>
+      <div class="participant-item">
+        <div class="participant-avatar">JD</div>
+        <div class="participant-info">
+          <div class="participant-name">John Doe</div>
+          <div class="participant-status">Last seen 2h ago</div>
+        </div>
+      </div>
+      <div class="participant-item">
+        <div class="participant-avatar">AL</div>
+        <div class="participant-info">
+          <div class="participant-name">Alice Lee</div>
+          <div class="participant-status online">Online</div>
+        </div>
+      </div>
+      <div class="participant-item">
+        <div class="participant-avatar">RB</div>
+        <div class="participant-info">
+          <div class="participant-name">Robert Brown</div>
+          <div class="participant-status">Last seen 5m ago</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-<div class="row">
-  <div class="col-md-12">
-    <table id="conversation" class="table table-striped">
-      <thead>
-      <tr>
-        <th>Messages</th>
-      </tr>
-      </thead>
-      <tbody id="messages">
-      </tbody>
-    </table>
+</div>
+</div>
+
+<div class="modal" id="createChatModal">
+  <div class="modal-content">
+    <h3>NEW_CHAT</h3>
+    <input type="text" placeholder="ENTER_CHAT_NAME" id="newChatName">
+    <div class="modal-buttons">
+      <button class="cancel">CANCEL</button>
+      <button class="confirm">CREATE</button>
+    </div>
   </div>
 </div>
+
 </body>
+<script>
+  $(document).ready(function() {
+    // 채팅방 선택
+    $('.chat-item').click(function(e) {
+      if (!$(e.target).hasClass('leave-chat-btn')) {
+        $('.chat-item').removeClass('active');
+        $(this).addClass('active');
+
+        const name = $(this).find('h4').text();
+        $('.chat-header h3').text(name);
+
+        $('.messages').empty();
+      }
+    });
+
+    // 메시지 전송
+    $('#message-form').submit(function(e) {
+      e.preventDefault();
+
+      const input = $('#message-input');
+      const message = input.val().trim();
+
+      if (message) {
+        const messageHtml = `
+                        <div class="message sent">
+                            <div class="message-content">${message}</div>
+                        </div>
+                    `;
+        $('.messages').append(messageHtml);
+
+        input.val('');
+
+        const messages = $('.messages');
+        messages.scrollTop(messages[0].scrollHeight);
+      }
+    });
+
+    // 새 채팅방 버튼 클릭
+    $('.create-chat-btn').click(function() {
+      $('#createChatModal').css('display', 'flex');
+    });
+
+    // 모달 닫기
+    $('#createChatModal .cancel').click(function() {
+      $('#createChatModal').hide();
+      $('#newChatName').val('');
+    });
+
+    // 새 채팅방 생성
+    $('#createChatModal .confirm').click(function() {
+      const name = $('#newChatName').val().trim();
+      if (name) {
+        const newChatHtml = `
+                        <div class="chat-item">
+                            <h4>${name}</h4>
+                            <p>New chat created</p>
+                            <button class="leave-chat-btn">×</button>
+                        </div>
+                    `;
+        $('.chat-list-content').prepend(newChatHtml);
+        $('#createChatModal').hide();
+        $('#newChatName').val('');
+      }
+    });
+
+    // 채팅방 나가기
+    $(document).on('click', '.leave-chat-btn', function(e) {
+      e.stopPropagation();
+      const chatItem = $(this).closest('.chat-item');
+
+      if (chatItem.hasClass('active')) {
+        const nextChat = $('.chat-item').not(chatItem).first();
+        if (nextChat.length) {
+          nextChat.addClass('active');
+          $('.chat-header h3').text(nextChat.find('h4').text());
+        } else {
+          $('.chat-header h3').text('');
+          $('.messages').empty();
+        }
+      }
+
+      chatItem.remove();
+    });
+  });
+</script>
 </html>
